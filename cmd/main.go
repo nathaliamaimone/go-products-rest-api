@@ -23,6 +23,7 @@ func main() {
     ProductController := controller.NewProductController(ProductUseCase)
 
     server.GET("/products", ProductController.GetProducts)
+    server.POST("/products", ProductController.CreateProduct)
 
     server.Run(":8080")
 }
