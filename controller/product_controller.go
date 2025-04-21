@@ -90,3 +90,23 @@ func (pc *productController) UpdateProduct(c *gin.Context) {
 
     c.JSON(http.StatusOK, gin.H{"message": "Product updated successfully"})
 }
+
+func (pc *productController) DeleteProduct(c *gin.Context) {
+    id, err := strconv.Atoi(c.Param("id"))
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+        return
+    }
+
+    err = pc.productUsecase.DeleteProduct(id)
+    if err != nil {
+        if err == sql.ErrNoRows {
+            c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
+            return
+        }
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "Product deleted successfully"})
+}
