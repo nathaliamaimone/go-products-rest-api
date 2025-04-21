@@ -1,9 +1,12 @@
 package controller
 
 import (
+	"database/sql"
 	"go-api/model"
 	"go-api/usecase"
 	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -39,4 +42,24 @@ func (p *productController) CreateProduct(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusCreated, insertedProduct)
+}
+
+func (pc *productController) GetProductById(c *gin.Context) {
+    id, err := strconv.Atoi(c.Param("id"))
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+        return
+    }
+
+    product, err := pc.productUsecase.GetProductById(id)
+    if err != nil {
+        if err == sql.ErrNoRows {
+            c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
+            return
+        }
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, product)
 }
