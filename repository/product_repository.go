@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"go-api/model"
+	"time"
 )
 
 type ProductRepository struct {
@@ -82,4 +83,23 @@ func (pr *ProductRepository) GetProductById(id int) (model.Product, error) {
     }
     
     return product, nil
+}
+
+func (pr *ProductRepository) UpdateProduct(product model.Product) error {
+    query := "UPDATE product SET name = $1, description = $2, price = $3, updated_at = $4 WHERE id = $5"
+    result, err := pr.connention.Exec(query, product.Name, product.Description, product.Price, time.Now(), product.Id)
+    if err != nil {
+        return err
+    }
+
+    rowsAffected, err := result.RowsAffected()
+    if err != nil {
+        return err
+    }
+
+    if rowsAffected == 0 {
+        return sql.ErrNoRows
+    }
+
+    return nil
 }
