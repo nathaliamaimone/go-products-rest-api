@@ -23,9 +23,10 @@ func main() {
     ProductController := controller.NewProductController(ProductUseCase)
 
     server.GET("/products", ProductController.GetProducts)
-    server.POST("/products", ProductController.CreateProduct)
     server.GET("/products/:id", ProductController.GetProductById)
+    server.POST("/products", ProductController.CreateProduct)
     server.PUT("/products/:id", ProductController.UpdateProduct)
+    server.PATCH("/products/:id", ProductController.PatchProduct)
     server.DELETE("/products/:id", ProductController.DeleteProduct)
 
     server.Run(":8080")

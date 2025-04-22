@@ -104,6 +104,25 @@ func (pr *ProductRepository) UpdateProduct(product model.Product) error {
     return nil
 }
 
+func (pr *ProductRepository) PatchProduct(product model.Product) error {
+    query := "UPDATE product SET name = COALESCE($1, name), description = COALESCE($2, description), price = COALESCE($3, price), updated_at = $4 WHERE id = $5"
+    result, err := pr.connention.Exec(query, product.Name, product.Description, product.Price, time.Now(), product.Id)
+    if err != nil {
+        return err
+    }
+
+    rowsAffected, err := result.RowsAffected()
+    if err != nil {
+        return err
+    }
+
+    if rowsAffected == 0 {
+        return sql.ErrNoRows
+    }
+
+    return nil
+}
+
 func (pr *ProductRepository) DeleteProduct(id int) error {
     query := "DELETE FROM product WHERE id = $1"
     result, err := pr.connention.Exec(query, id)

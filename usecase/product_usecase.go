@@ -37,6 +37,10 @@ func (pu *ProductUsecase) UpdateProduct(product model.Product) error {
     return pu.repository.UpdateProduct(product)
 }
 
+func (pu *ProductUsecase) PatchProduct(product model.Product) error {
+    return pu.repository.PatchProduct(product)
+}
+
 func (pu *ProductUsecase) DeleteProduct(id int) error {
     return pu.repository.DeleteProduct(id)
 }

@@ -1,5 +1,5 @@
 package controller
-
+// https://www.youtube.com/watch?v=3p4mpId_ZU8
 import (
 	"database/sql"
 	"go-api/model"
@@ -109,4 +109,46 @@ func (pc *productController) DeleteProduct(c *gin.Context) {
     }
 
     c.JSON(http.StatusOK, gin.H{"message": "Product deleted successfully"})
+}
+
+func (pc *productController) PatchProduct(c *gin.Context) {
+    id, err := strconv.Atoi(c.Param("id"))
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+        return
+    }
+
+    existingProduct, err := pc.productUsecase.GetProductById(id)
+    if err != nil {
+        if err == sql.ErrNoRows {
+            c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
+            return
+        }
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    var updates map[string]interface{}
+    if bindErr := c.ShouldBindJSON(&updates); bindErr != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": bindErr.Error()})
+        return
+    }
+
+    if name, ok := updates["name"].(string); ok {
+        existingProduct.Name = name
+    }
+    if description, ok := updates["description"].(string); ok {
+        existingProduct.Description = description
+    }
+    if price, ok := updates["price"].(float64); ok {
+        existingProduct.Price = price
+    }
+
+    err = pc.productUsecase.PatchProduct(existingProduct)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "Product updated successfully"})
 }
