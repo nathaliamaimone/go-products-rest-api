@@ -22,6 +22,15 @@ func main() {
 
     ProductController := controller.NewProductController(ProductUseCase)
 
+    userRepository := repository.NewUserRepository(dbConnection)
+    userUsecase := usecase.NewUserUsecase(userRepository)
+    userController := controller.NewUserController(userUsecase)
+
+    // Auth routes
+    server.POST("/register", userController.Register)
+    server.POST("/login", userController.Login)
+
+    // Products routes
     server.GET("/products", ProductController.GetProducts)
     server.GET("/products/:id", ProductController.GetProductById)
     server.POST("/products", ProductController.CreateProduct)
