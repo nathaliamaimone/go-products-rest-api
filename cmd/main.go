@@ -1,14 +1,21 @@
 package main
 
 import (
-    "go-api/controller"
-	"go-api/db" 
+	"go-api/config"
+	"go-api/controller"
+	"go-api/db"
 	"go-api/repository"
+	"go-api/service"
 	"go-api/usecase"
-	"github.com/gin-gonic/gin" 
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
+    if err := config.LoadConfig(); err != nil {
+        panic(err)
+    }
+    
     server := gin.Default()
 
     dbConnection, err := db.ConnectDB()
@@ -22,9 +29,17 @@ func main() {
 
     ProductController := controller.NewProductController(ProductUseCase)
 
+    // Initialize services
+    jwtService := service.NewJWTService()
+
+    // Initialize repositories
     userRepository := repository.NewUserRepository(dbConnection)
+
+    // Initialize usecases
     userUsecase := usecase.NewUserUsecase(userRepository)
-    userController := controller.NewUserController(userUsecase)
+
+    // Initialize controllers
+    userController := controller.NewUserController(userUsecase, jwtService)
 
     // Auth routes
     server.POST("/register", userController.Register)
