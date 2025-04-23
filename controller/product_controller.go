@@ -1,5 +1,5 @@
 package controller
-// https://www.youtube.com/watch?v=3p4mpId_ZU8
+
 import (
 	"database/sql"
 	"go-api/model"
