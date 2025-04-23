@@ -4,6 +4,7 @@ import (
 	"go-api/config"
 	"go-api/controller"
 	"go-api/db"
+	"go-api/middleware"
 	"go-api/repository"
 	"go-api/service"
 	"go-api/usecase"
@@ -29,29 +30,29 @@ func main() {
 
     ProductController := controller.NewProductController(ProductUseCase)
 
-    // Initialize services
     jwtService := service.NewJWTService()
 
-    // Initialize repositories
     userRepository := repository.NewUserRepository(dbConnection)
 
-    // Initialize usecases
     userUsecase := usecase.NewUserUsecase(userRepository)
 
-    // Initialize controllers
     userController := controller.NewUserController(userUsecase, jwtService)
 
-    // Auth routes
+    // Public routes
     server.POST("/register", userController.Register)
     server.POST("/login", userController.Login)
-
-    // Products routes
     server.GET("/products", ProductController.GetProducts)
     server.GET("/products/:id", ProductController.GetProductById)
-    server.POST("/products", ProductController.CreateProduct)
-    server.PUT("/products/:id", ProductController.UpdateProduct)
-    server.PATCH("/products/:id", ProductController.PatchProduct)
-    server.DELETE("/products/:id", ProductController.DeleteProduct)
+
+    // Protected routes
+    protected := server.Group("/")
+    protected.Use(middleware.AuthMiddleware(jwtService))
+    {
+        protected.POST("/products", ProductController.CreateProduct)
+        protected.PUT("/products/:id", ProductController.UpdateProduct)
+        protected.PATCH("/products/:id", ProductController.PatchProduct)
+        protected.DELETE("/products/:id", ProductController.DeleteProduct)
+    }
 
     server.Run(":8080")
 }
