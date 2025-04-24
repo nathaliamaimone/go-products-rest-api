@@ -25,6 +25,7 @@ DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=your-password
 DB_NAME=your-database
+```
 
 ## Executando o Projeto
 
@@ -35,17 +36,21 @@ Para executar o projeto, siga os passos abaixo:
    git clone https://github.com/seu-usuario/go-products-rest-api.git
    ```
 
-1. Instalando as dependências:
+2. Instalando as dependências:
    ```bash
    go mod download
    ```
+3. Certifique-se de que o pacote godotenv esteja instalado:
+   ```bash
+   go get github.com/joho/godotenv
+   ```
 
-3. Inicie o banco de dados:
+4. Inicie o banco de dados:
    ```bash
    docker compose up -d
    ```
-
-4. Execute a aplicação:
+   
+5. Execute a aplicação:
    ```bash
    cd cmd && go run main.go
    ```
