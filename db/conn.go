@@ -3,31 +3,44 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"os"
+	
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
-const (
-	Host     = "localhost"
-	Port     = 5432
-	User     = "postgres"
-	Password = "1234"
-	Dbname   = "postgres"
-)
+func init() {
+	// Load the .env file
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Erro ao carregar o arquivo .env:", err)
+	}
+}
 
 func ConnectDB() (*sql.DB, error) {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+	// Reads environment variables
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	dbname := os.Getenv("DB_NAME")
+
+	// Builds the connection string
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s sslmode=disable",
-		Host, Port, User, Password, Dbname)
+		host, port, user, password, dbname)
+	
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
+	// Test the connection
 	err = db.Ping()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	fmt.Println("Connected to " + Dbname)
+	fmt.Println("Conectado ao banco de dados:", dbname)
 	return db, nil
 }
